@@ -1,5 +1,5 @@
 # anagram.py
-# usage: ./anagram <word>
+# usage: anagram.py <word>
 
 import sys
 import bisect
