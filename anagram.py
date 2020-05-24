@@ -18,7 +18,7 @@ def sort_dictionary(dic):
 def find_anagram(word,sorted_dic):
 
     sorted_word = "".join(sorted(word.lower()))
-    sorted_dic_slice = [a[0] for a in sorted_dic]  #[' ']を含んだ文字列になっている
+    sorted_dic_slice = [a[0] for a in sorted_dic] 
     anagram_index = bisect.bisect_left(sorted_dic_slice, sorted_word)
 
     anagram_count=0
