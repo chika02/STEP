@@ -61,12 +61,12 @@ def calcMulDiv(tokens, index):
       elif tokens[i - 1]['type'] == 'DIV':
         ans /= tokens[i]['number']
       elif tokens[i - 1]['type'] == 'PLUS' or 'MINUS':
-        return ans, i
+        return ans, i-1
       else:
         print('Invalid syntax')
         exit(1)
     i += 1
-  return ans, i
+  return ans, i-1
 
 def evaluate(tokens):
   answer = 0
@@ -83,6 +83,7 @@ def evaluate(tokens):
       else:
         print('Invalid syntax')
         exit(1)
+    index += 1
   return answer
 
 
@@ -101,7 +102,10 @@ def runTest():
   print("==== Test started! ====")
   test("1+2")
   test("1.0+2.1-3")
-  test("2*3-3/6")
+  test("-1+2")
+  test("1*3-3/6")
+  test("2.0*3.5-3/6")
+  test("2.0*3.5-3/6.0")
   print("==== Test finished! ====\n")
 
 runTest()
