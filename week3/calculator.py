@@ -22,12 +22,12 @@ def readMinus(line, index):
   token = {'type': 'MINUS'}
   return token, index + 1
 
-def readMultiply(line, index):
-  token = {'type': 'PLUS'}
+def readMul(line, index):
+  token = {'type': 'MUL'}
   return token, index + 1
 
-def readDivide(line, index):
-  token = {'type': 'MINUS'}
+def readDiv(line, index):
+  token = {'type': 'DIV'}
   return token, index + 1
 
 def tokenize(line):
@@ -41,15 +41,32 @@ def tokenize(line):
     elif line[index] == '-':
       (token, index) = readMinus(line, index)
     elif line[index] == '*':
-      (token, index) = readMultiply(line, index)
+      (token, index) = readMul(line, index)
     elif line[index] == '/':
-      (token, index) = readDivide(line, index)
+      (token, index) = readDiv(line, index)
     else:
       print('Invalid character found: ' + line[index])
       exit(1)
     tokens.append(token)
   return tokens
 
+def calcMulDiv(tokens, index):
+  ans = 1
+  i = index
+  tokens[i-1]={'type': 'MUL'} # change token[i-1] to a dummy '*' token
+  while i < len(tokens):
+    if tokens[i]['type'] == 'NUMBER':
+      if tokens[i - 1]['type'] == 'MUL':
+        ans *= tokens[i]['number']
+      elif tokens[i - 1]['type'] == 'DIV':
+        ans /= tokens[i]['number']
+      elif tokens[i - 1]['type'] == 'PLUS' or 'MINUS':
+        return ans, i
+      else:
+        print('Invalid syntax')
+        exit(1)
+    i += 1
+  return ans, i
 
 def evaluate(tokens):
   answer = 0
@@ -58,13 +75,14 @@ def evaluate(tokens):
   while index < len(tokens):
     if tokens[index]['type'] == 'NUMBER':
       if tokens[index - 1]['type'] == 'PLUS':
-        answer += tokens[index]['number']
+        ans, index = calcMulDiv(tokens, index)
+        answer += ans
       elif tokens[index - 1]['type'] == 'MINUS':
-        answer -= tokens[index]['number']
+        ans, index = calcMulDiv(tokens, index)
+        answer -= ans
       else:
         print('Invalid syntax')
         exit(1)
-    index += 1
   return answer
 
 
