@@ -18,11 +18,17 @@ def readPlus(line, index):
   token = {'type': 'PLUS'}
   return token, index + 1
 
-
 def readMinus(line, index):
   token = {'type': 'MINUS'}
   return token, index + 1
 
+def readMultiply(line, index):
+  token = {'type': 'PLUS'}
+  return token, index + 1
+
+def readDivide(line, index):
+  token = {'type': 'MINUS'}
+  return token, index + 1
 
 def tokenize(line):
   tokens = []
@@ -34,6 +40,10 @@ def tokenize(line):
       (token, index) = readPlus(line, index)
     elif line[index] == '-':
       (token, index) = readMinus(line, index)
+    elif line[index] == '*':
+      (token, index) = readMultiply(line, index)
+    elif line[index] == '/':
+      (token, index) = readDivide(line, index)
     else:
       print('Invalid character found: ' + line[index])
       exit(1)
@@ -73,6 +83,7 @@ def runTest():
   print("==== Test started! ====")
   test("1+2")
   test("1.0+2.1-3")
+  test("2*3-3/6")
   print("==== Test finished! ====\n")
 
 runTest()
