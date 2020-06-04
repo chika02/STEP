@@ -50,6 +50,8 @@ def tokenize(line):
     tokens.append(token)
   return tokens
 
+#calculate * / until you reach + - or the end of token.
+#returns calculated value and the index of +- or the last index of token.
 def calcMulDiv(tokens, index):
   ans = 1
   i = index
