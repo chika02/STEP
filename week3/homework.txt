@@ -1,0 +1,11 @@
+question 2 (calculator.py)
+implemented a function that calculate multiplication and division until the next + or -
+
+question 3 (calculator2.py)
+implemented functions that
+- returns after addition and substraction ...A
+- returns after multiplication and division ...B
+- calculates formula inside ()...C
+it starts with A and go into B and then into C.
+B is called only from A. C is called only from B.
+A is called in the beginning or from C.
