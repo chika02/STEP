@@ -131,11 +131,7 @@ def calcParenthesis(tokens,index):
   answer=0
   i=index+1
   while i < len(tokens):
-    if tokens[i]['type'] == 'OPEN':
-      ans, i = calcParenthesis(tokens,i)
-      answer += ans
-      i += 1
-    elif tokens[i]['type'] == 'NUMBER' or tokens[i]['type'] == 'MINUS':
+    if tokens[i]['type'] == 'NUMBER' or tokens[i]['type'] == 'MINUS' or tokens[i]['type'] == 'OPEN':
       ans, i = calcAddSub(tokens, i)
       answer += ans
     elif tokens[i]['type'] == 'CLOSE':   #if ) is found return value and index of )
@@ -178,6 +174,7 @@ def runTest():
   test("(3.0+4)/5")
   test("(3.0+4*(2-1))/5")
   test("3+(2-1)")
+  test("((2-1)*3+1)/5")
   print("==== Test finished! ====\n")
 
 runTest()
