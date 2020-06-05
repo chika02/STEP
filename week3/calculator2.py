@@ -67,109 +67,70 @@ def tokenize(line):
 #when ( is found it calls calcParenthesis.
 #returns calculated value and the index after next + -, or the last index of token.
 def calcMulDiv(tokens, index):
-  print("-----calcMD", index)
-  print(tokens)
   tokens.insert(index, {'type': 'MUL'})
-  print(tokens)
   answer = 1
   i = index
   while i<len(tokens):
-    print("tokens",i,tokens[i])
     if tokens[i]['type'] == 'NUMBER':   # when num is found
       if tokens[i - 1]['type'] == 'MUL':
         answer *= tokens[i]['number']
-        print("* answer",answer)
         i += 1
       elif tokens[i - 1]['type'] == 'DIV':
         answer /= tokens[i]['number']
-        print("/ answer",answer)
         i += 1
       else:
         print('Invalid syntax')
         exit(1)
     elif tokens[i]['type'] == 'OPEN':    # when ( is found
-      print("( found")
       if tokens[i - 1]['type'] == 'MUL':
         ans, i = calcParenthesis(tokens,i)
         answer *= ans
         i += 1
-        print("* answer P",answer)
       elif tokens[i - 1]['type'] == 'DIV':
         ans, i = calcParenthesis(tokens,i)
         answer /= ans
         i += 1
-        print("/ answer P",answer)
       else:
         print('Invalid syntax')
         exit(1)
     elif tokens[i]['type'] == 'PLUS' or tokens[i]['type'] == 'MINUS':   #when + - is found
-        print("+- found")
-        print("-----returnMD",answer)
-        return answer, i
+      return answer, i
     elif tokens[i]['type'] == 'CLOSE':   #when ) is found
-      print("-----returnMD", i, answer)
       return answer, i
     else:
-      print("else")
       i += 1
-  print(i)
-  print("-----returnMD",answer)
   return answer, i
 
 #calculate formula consisting of + -
 #returns calculated value and the last index
 #index with type 'number' or 'open' is given
 def calcAddSub(tokens, index):
-  print("-----calcAS", index)
   answer = 0
   i = index
   while i<len(tokens):
-    print("tokens=",i, tokens[i])
-    if tokens[i]['type'] == 'NUMBER' or tokens[i]['type'] == 'OPEN':     # when num is found
-      print("num found")
+    if tokens[i]['type'] == 'NUMBER' or tokens[i]['type'] == 'OPEN':     # when num or ( is found
       if i==0 or tokens[i - 1]['type'] == 'PLUS' or tokens[i - 1]['type'] == 'OPEN':
         ans, i = calcMulDiv(tokens, i)     #call calcMulDiv and add
         answer += ans
-        print("+ answer",answer)
-        print(tokens)
       elif tokens[i - 1]['type'] == 'MINUS':
         ans, i = calcMulDiv(tokens, i)
         answer -= ans
-        print("- answer",answer)
       else:
         print('Invalid syntax')
         exit(1)
-    #elif tokens[i]['type'] == 'OPEN':        #when ( is found
-    #  if tokens[i - 1]['type'] == 'PLUS' or tokens[i - 1]['type'] == 'OPEN':
-    #    ans, i = calcParenthesis(tokens,i)    #call calcParenthesis and add
-    #    answer += ans
-    #    i += 1
-    #    print("+ answer P ",answer)
-    #  elif tokens[i - 1]['type'] == 'MINUS':
-    #    ans, i = calcParenthesis(tokens,i)
-    #    answer -= ans
-    #    i += 1
-    #    print("- answer P ",answer)
-    #  else:
-    #    print('Invalid syntax')
-    #    exit(1)
     elif tokens[i]['type'] == 'CLOSE':      #when ) is found
-      print("-----returnAS", i, answer)
       return answer, i
     else:
       i += 1
-  print("-----returnAS", i, answer)
   return answer, i
 
 #calcParenthesis is only referenced from calcMulDiv
 #returns the calculated value inside the parenthesis and the index of )
 #index of ( is given
 def calcParenthesis(tokens,index):
-  print("-----calcP", index)
   answer=0
   i=index+1
   while i < len(tokens):
-    print("i=",i)
     if tokens[i]['type'] == 'OPEN':
       ans, i = calcParenthesis(tokens,i)
       answer += ans
@@ -178,19 +139,16 @@ def calcParenthesis(tokens,index):
       ans, i = calcAddSub(tokens, i)
       answer += ans
     elif tokens[i]['type'] == 'CLOSE':   #if ) is found return value and index of )
-      print("-----returnP",i, answer)
       return answer, i
     else:
       print('Invalid syntax')
       exit(1)
-  print("-----returnP",i, answer)
   return answer, i
 
 def evaluate(tokens):
   answer = 0
   i=0
   tokens.insert(0, {'type': 'PLUS'}) # Insert a dummy '+' token
-  print(tokens)
   answer, i = calcAddSub(tokens,i)
   return answer
 
