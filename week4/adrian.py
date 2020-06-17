@@ -1,14 +1,14 @@
 from collections import deque
 
 def openfiles():
-    with open('nicknames.txt') as f1:
+    with open('adrian_links/nicknames.txt') as f1:
         names = {}
-        for s in f1.readlines():
+        for s in f1.readlines():          #e.g. names[adrian] = 1
             id_, name = s.strip().split()
             id_ = int(id_)
             names[name]=id_
     n = len(names)
-    with open('links.txt') as f2:
+    with open('adrian_links/links.txt') as f2:
         follow = [ [] for _ in range (n)]
         for s in f2.readlines():
             s1, s2 = s.strip().split()
@@ -18,25 +18,27 @@ def openfiles():
 
 def search_ways(id1, id2, follow, n):
 
-    if id1 == id2:
-        return True
-    flg = ['UNDONE' for _ in range(n)]
+    flg = ['UNDONE' for _ in range(n)]   #flags for each node
+    route = [[] for _ in range(n)]       #route[id] contains route from id1 to id
     q = deque()
     q.append(id1)
     flg[id1] = 'DOING'
+    route[id1].append(id1)
+    if id1==id2:
+        return route
     while len(q) != 0:
         person = q.popleft()
         for sb in follow[person]:
             if flg[sb] == 'UNDONE':
-                #print(sb, end = " ")
+                route[sb] = route[person]
+                route[sb].append(sb)
                 if sb == id2:
-                    return True
+                    return route
                 else:
                     q.append(sb)
                     flg[sb] = 'DOING'
         flg[person] = 'DONE'
-
-    return False
+    return None
 
 def main(from_name, to_name, names, follow, n):
 
@@ -51,9 +53,14 @@ def main(from_name, to_name, names, follow, n):
         print("%s does not exist" % to_name)
         return
 
-    ans  = search_ways(id1, id2, follow, n)
-    if ans == 1:
+    route = search_ways(id1, id2, follow, n)
+    if route != None:
         print("%s to %s: found!" % (from_name, to_name))
+        print(id1,end="")
+        if id1 != id2:
+            for person in route[id2][1:]:
+                print("->%d"%(person),end="")
+        print("\n")
     else:
         print("%s to %s: not found.." % (from_name, to_name))
     return
