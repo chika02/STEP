@@ -17,7 +17,7 @@ def open_files(words):
             links[page1].append(page2)
     return pages, links, rootid
 
-def search_links(pages, links, rootid, words):
+def search_links(pages, links, rootid, words, max_depth):
 
     path = f"{words['root']}_{words['suffix']}.txt"
     f = open(path, mode='w')
@@ -30,12 +30,18 @@ def search_links(pages, links, rootid, words):
     f.write("|-%s (%d)\n"%(pages[rootid],rootid))
     while len(stack) != 0:
         parent = stack.pop()
-        if depth[parent] > 2:
+        if depth[parent] >= max_depth:
             continue
         for child in links[parent]:
             if flags[child] == 0:
                 flags[child] = 1
-                if pages[child].endswith(words['suffix']) and not pages[child].endswith(words['exclude_suffix']):
+                condition_1 = True
+                condition_2 = True
+                if len(words['suffix']) != 0:
+                    condition_1 = pages[child].endswith(words['suffix'])
+                if len(words['exclude_suffix']) != 0:
+                    condition_2 = not pages[child].endswith(words['exclude_suffix'])
+                if condition_1 and condition_2:
                     depth[child] = depth[parent]+1
                     stack.append(child)
                     [f.write("  ") for _ in range(depth[child])]
@@ -48,14 +54,22 @@ def search_links(pages, links, rootid, words):
 if __name__ == "__main__" :
     
     words = {}
-    words['root'] = "自然科学"
-    words['suffix'] = "学"
-    words['exclude_suffix'] = "大学"
-    print("entry: ",words['root'])
+    print("enter the following;  root - the page you start search from;  suffix - searches only pages with the suffix;  exclude_suffix - searches only pages without the suffix")
+    print("root:",end="")
+    words['root'] = input().strip()
+    print("suffix:",end="")
+    words['suffix'] = input().strip()
+    print("exclude_suffix:",end="")
+    words['exclude_suffix'] = input().strip()
+    print("max_depth:",end="")
+    max_depth = int(input().strip())
+    if max_depth > 10:
+        print("max_depth should be below 10")
+        exit(1)
 
     pages, links, rootid = open_files(words)
     if rootid == -1:
         print("%s not found in wikipedia"%words['root'])
         exit(1)
-    search_links(pages, links, rootid, words)
+    search_links(pages, links, rootid, words, max_depth)
 
