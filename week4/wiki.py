@@ -1,15 +1,13 @@
-from collections import deque
-
-def open_files(rootword):
-    path_1 = "adrian_links/nicknames.txt"
-    path_2 = "adrian_links/links.txt"
+def open_files(words):
+    path_1 = "wikipedia_links/pages.txt"
+    path_2 = "wikipedia_links/links.txt"
     pages = []
     rootid = -1
     with open (path_1) as f_1:
         for line in f_1:
             line = line.split()
             pages.append(line[1])
-            if line[1] == rootword:
+            if line[1] == words['root']:
                 rootid = len(pages)-1
     n = len(pages)
     links = [[]for _ in range (n)]
@@ -19,39 +17,45 @@ def open_files(rootword):
             links[page1].append(page2)
     return pages, links, rootid
 
-def search_links(pages, links, rootid):
+def search_links(pages, links, rootid, words):
 
+    path = f"{words['root']}_{words['suffix']}.txt"
+    f = open(path, mode='w')
     n = len(pages)
-    q = deque()
-    q.append(rootid)
+    stack = [rootid]
     flags = [0 for _ in range (n)]
     flags[rootid] = 1
-    depth = [0 for _ in range (n)]
-    while len(q) != 0:
-        wikipage = q.popleft()
-        if depth[wikipage] >= 5:
+    depth = [-1 for _ in range (n)]
+    depth[rootid] = 0
+    f.write("|-%s (%d)\n"%(pages[rootid],rootid))
+    while len(stack) != 0:
+        parent = stack.pop()
+        if depth[parent] > 2:
             continue
-        for link in links[wikipage]:
-            if flags[link] == 0:
-                flags[link] = 1
-                depth[link] = depth[wikipage]+1
-                q.append(link)
-                [print("  ",end = "") for _ in range(depth[link])]
-                print("|-"+pages[link])
-        flags[wikipage] = 2
+        for child in links[parent]:
+            if flags[child] == 0:
+                flags[child] = 1
+                if pages[child].endswith(words['suffix']) and not pages[child].endswith(words['exclude_suffix']):
+                    depth[child] = depth[parent]+1
+                    stack.append(child)
+                    [f.write("  ") for _ in range(depth[child])]
+                    f.write("|-%s (%d)\n"%(pages[child],child))
+        flags[parent] = 2
     return
 
 
 
 if __name__ == "__main__" :
     
-    #print("entry: ",end="")
-    #input()
-    print("entry: adrian")
-    rootword = "adrian"
-    pages, links, rootid = open_files(rootword)
+    words = {}
+    words['root'] = "自然科学"
+    words['suffix'] = "学"
+    words['exclude_suffix'] = "大学"
+    print("entry: ",words['root'])
+
+    pages, links, rootid = open_files(words)
     if rootid == -1:
-        print("%s not found in wikipedia"%rootword)
+        print("%s not found in wikipedia"%words['root'])
         exit(1)
-    search_links(pages, links, rootid)
+    search_links(pages, links, rootid, words)
 
