@@ -40,19 +40,7 @@ void product_c(int n, double A[n][n], double B[n][n], double C[n][n]){
     return;
 }
 
-int main (int argc, char** argv){
-
-    if (argc != 2) {
-        fprintf(stderr, "usage: ./comparison <number>\n");
-        exit(1);
-    }
-    int n = atoi(argv[1]);
-    if (n == 0) {
-        fprintf(stderr, "error: invalid character detected\n");
-        exit(1);
-    }
-
-    srand(time(NULL));
+int measure_time(n){
 
     double A[n][n];
     double B[n][n];
@@ -65,7 +53,24 @@ int main (int argc, char** argv){
     product_c(n, A, B, C);
     gettimeofday(&t2, NULL);
 
-    printf("%d\n",t2.tv_usec - t1.tv_usec);
+    return t2.tv_usec - t1.tv_usec;
 
+}
+
+int main (int argc, char** argv){
+
+    srand(time(NULL));
+    const char* path = "time_c.csv";
+    FILE* fp = fopen(path, "w");
+
+    int m = 10;
+    double ave = 0;
+    for (int n=1; n<100; n++){
+        for (int i=0; i<m; i++){
+            ave += measure_time(n)*1.0/m;
+        }
+        fprintf(fp, "%d  %lf\n", n, ave);
+    }
+    
     return 0;
 }
