@@ -42,7 +42,7 @@ if __name__ == "__main__":
     path1 = "time_py.csv"
     path2 = "time_np.csv"
     with open (path1, mode="a") as f:
-        f.write("%d  %lf\n" %(n, (t2-t1)*1000))
+        f.write("%d  %lf\n" %(n, (t2-t1)*10**6))
     with open (path2, mode="a") as f:
-        f.write("%d  %lf\n" %(n, (t3-t2)*1000))
+        f.write("%d  %lf\n" %(n, (t3-t2)*10**6))
 
