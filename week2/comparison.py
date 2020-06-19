@@ -7,7 +7,7 @@ def array_generator(n):
     return array
 
 
-def product_manual(A,B,n):
+def product_py(A,B,n):
     C = [[0 for _ in range(n)] for _ in range(n)]
     for i in range(n):
         for j in range(n):
@@ -34,12 +34,12 @@ if __name__ == "__main__":
     A = array_generator(n)
     B = array_generator(n)
     t1 = time.time()
-    C = product_manual(A,B,n)
+    C = product_py(A,B,n)
     t2 = time.time()
     D = product_np(A,B)
     t3 = time.time()
 
-    path1 = "time_manual.csv"
+    path1 = "time_py.csv"
     path2 = "time_np.csv"
     with open (path1, mode="a") as f:
         f.write("%d  %lf\n" %(n, (t2-t1)*1000))
