@@ -23,8 +23,11 @@ def product_np(A,B):
 if __name__ == "__main__":
 
     args = sys.argv
-    if len(args) != 2 or not args[1].isdigit():
-        print("invalid input",file = sys.stderr)
+    if len(args) != 2:
+        print("usage: python comparison.py <number>",file = sys.stderr)
+        sys.exit(1)
+    if not args[1].isdigit():
+        print("invalid character detected",file = sys.stderr)
         sys.exit(1)
     n = int(args[1])
 
