@@ -219,10 +219,13 @@ typedef struct my_heap_t {
   my_metadata_t dummy;
 } my_heap_t;
 
+//my_heap starts from (dummy and next) the metadata of first allocated address.
+//my_heap->next is the next metadata. it includes both free region and used region.
+//metadata->free is 0 when the region is free; otherwise 1;
+//when mmap_from_system is called, use a dummy metadata with free = 1 to avoid combining.
 my_heap_t my_heap;
 
 void my_initialize() {
-  //printf("in my init\n");
   my_heap.head = &my_heap.dummy;
   my_heap.dummy.size = 0;
   my_heap.dummy.isfree = 1;
@@ -268,7 +271,6 @@ void* my_malloc(size_t size) {
 }
 
 void my_free(void* ptr) {
-  //printf("in myfree");
   my_metadata_t* metadata = (my_metadata_t*)ptr - 1;  //1 is not 1 but size of metadata
   if (metadata->next->isfree == 0){
     metadata->size = metadata->size + metadata->next->size + sizeof(my_metadata_t);
