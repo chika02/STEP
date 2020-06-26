@@ -223,16 +223,32 @@ typedef struct my_heap_t {
 //my_heap->next is the next metadata. it includes both free region and used region.
 //metadata->free is 0 when the region is free; otherwise 1;
 //when mmap_from_system is called, use a dummy metadata with free = 1 to avoid combining.
-my_heap_t my_heap;
+
+my_heap_t heap_small;
+my_heap_t heap_large;
+void* my_malloc_orig(size_t size, my_heap_t my_heap);
 
 void my_initialize() {
-  my_heap.head = &my_heap.dummy;
-  my_heap.dummy.size = 0;
-  my_heap.dummy.isfree = 1;
-  my_heap.dummy.next = NULL;
+  heap_small.head = &heap_small.dummy;
+  heap_small.dummy.size = 0;
+  heap_small.dummy.isfree = 1;
+  heap_small.dummy.next = NULL;
+
+  heap_large.head = &heap_large.dummy;
+  heap_large.dummy.size = 0;
+  heap_large.dummy.isfree = 1;
+  heap_large.dummy.next = NULL;
 }
 
-void* my_malloc(size_t size) {
+void* my_malloc(size_t size){
+  if (size<32){
+    return my_malloc_orig(size,heap_small);
+  }else{
+    return my_malloc_orig(size,heap_large);
+  }
+}
+
+void* my_malloc_orig(size_t size, my_heap_t my_heap) {
   my_metadata_t* metadata = my_heap.head;
   my_metadata_t* prev = NULL;
   while (metadata && (metadata->size < size || metadata->isfree != 0)) {
