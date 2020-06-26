@@ -208,23 +208,73 @@ void simple_free(void* ptr) {
 //
 // Your job is to invent a smarter malloc algorithm here :)
 
-// This is called only once at the beginning of each challenge.
+typedef struct my_metadata_t {
+  size_t size;
+  size_t isfree;
+  struct my_metadata_t* next;
+} my_metadata_t;
+
+typedef struct my_heap_t {
+  my_metadata_t* head;
+  my_metadata_t dummy;
+} my_heap_t;
+
+my_heap_t my_heap;
+
 void my_initialize() {
-  simple_initialize();  // Rewrite!
+  //printf("in my init\n");
+  my_heap.head = &my_heap.dummy;
+  my_heap.dummy.size = 0;
+  my_heap.dummy.isfree = 1;
+  my_heap.dummy.next = NULL;
 }
 
-// This is called every time an object is allocated. |size| is guaranteed
-// to be a multiple of 8 bytes and meets 8 <= |size| <= 4000. You are not
-// allowed to use any library functions other than mmap_from_system /
-// munmap_to_system.
 void* my_malloc(size_t size) {
-  return simple_malloc(size);  // Rewrite!
+  my_metadata_t* metadata = my_heap.head;
+  my_metadata_t* prev = NULL;
+  while (metadata && (metadata->size < size || metadata->isfree != 0)) {
+    prev = metadata;
+    metadata = metadata->next;
+  }
+  if (!metadata) {
+    size_t buffer_size = 4096;
+    my_metadata_t* map_dummy = (my_metadata_t*)mmap_from_system(buffer_size);
+    map_dummy->size = 0;
+    map_dummy->isfree = 1;     //make a wall so that prev and next won't connect
+    prev->next = map_dummy;
+    void* nextptr = map_dummy + 1;
+    my_metadata_t* metadata = (my_metadata_t*)nextptr;
+    metadata->size = buffer_size - 2 * sizeof(my_metadata_t);
+    metadata->isfree = 0;
+    metadata->next = NULL;
+    map_dummy->next = metadata;
+    return my_malloc(size);
+  }
+  void* ptr = metadata + 1;
+  size_t remaining_size = metadata->size - size;
+  metadata->size = size;
+  metadata->isfree = 1;
+
+  //make metadata for the remaining memory
+  if (remaining_size > sizeof(my_metadata_t)) {
+    my_metadata_t* new_metadata = (my_metadata_t*)((char*)ptr + size);  //?
+    new_metadata->size = remaining_size - sizeof(my_metadata_t);
+    new_metadata->isfree = 0;
+    new_metadata->next = metadata->next;
+    metadata->next = new_metadata;
+  }
+
+  return ptr;
 }
 
-// This is called every time an object is freed.  You are not allowed to use
-// any library functions other than mmap_from_system / munmap_to_system.
 void my_free(void* ptr) {
-  simple_free(ptr);  // Rewrite!
+  //printf("in myfree");
+  my_metadata_t* metadata = (my_metadata_t*)ptr - 1;  //1 is not 1 but size of metadata
+  if (metadata->next->isfree == 0){
+    metadata->size = metadata->size + metadata->next->size + sizeof(my_metadata_t);
+    metadata->next = metadata->next->next;
+  }
+  metadata->isfree = 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
